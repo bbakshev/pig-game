@@ -1,118 +1,116 @@
-// Business Logic
+//Business Logic
 
-function Player() {
-  this.currentScore = 0;
-  this.totalScore = 0;
-  this.activeTurn = [true or false]
-}
-
-/*this function is gonna have a number of things going on - 
-
-1, using the roll dice function and logging the value
-2. if value = 1, execute change turn function? (I don't know how this is gonna happen exactly)
-3. if 2 <= value <= 6, add value of dice to currentScore value
-*/
-
-/* */ 
-Player.prototype.rollDice = function() {
-  let roll = randomMath();
-  this.currentScore += roll;
-}
-
-/*
-Do we want to create a dice object?
-*/
-
-// this code includes conditions for turn changing as well, that's why it looks different than theirs.  I dunno if that's
-// the best way to do things.
-function randomMath() {
-  let roll = Math.floor(Math.random() * 6) + 1;
-  return roll;
-  if (roll = 1) {
-    function changeTurn
-  }
-}
-
-
-
-/*we can rewrite the below function as an object specific method */
-
-function changeTurn() {
-  if (player1.activeTurn === true) {
-    player1.activeTurn === false
-  }
-  if (player1.activeTurn === false) {
-    player1.activeTurn === true
-  }
-  if (player2.activeTurn === true) {
-    player2.activeTurn === false
-  }
-  if (player2.activeTurn === false) {
-    player2.activeTurn === true
-  }
-}
-
-
-/*
-roll button, returns value between 1 and 6
-conditional logic checks the value and updates the html img element to <img src="img/dice-[number].png">
-*/
-
-
-// User Interface Logic
-function handleFormSubmission(event) {
-  event.preventDefault();
-}
-
-// The code from Carl's session code-along
-
-function Game() {
-  this.activePlayer = 1;
+// Game Object Logic
+function Game () {
+  this.activePlayer = 0;
   this.gameActive = true;
-  this.players = [player1 , player2]
+  this.players = [];
+}
 
+Game.prototype.changePlayer = function() {
+  if (this.activePlayer === 0) {
+    this.activePlayer = 1;
+  } else {
+    this.activePlayer = 0;
+  }
+}
+
+Game.prototype.endGame = function() {
+  if (game.players[game.activePlayer].turnScore + game.players[game.activePlayer].overAllScore >= 100) {
+    this.gameActive = false;
+  }
+}
+
+Game.prototype.newGame = function() {
+  this.activePlayer = 0;
+  this.players[0].turnScore = 0;
+  this.players[1].turnScore = 0;
+  this.players[0].overAllScore = 0;
+  this.players[1].overAllScore = 0;
+ 
 }
 
 function randomMath() {
-  return Math.floor((Math.random() * 6) + 1);
+  return Math.floor((Math.random() * 6) + 2);
 }
 
+// Player Object Logic
 function Player() {
-  this.totalScore = 0;
-  this.currentScore = 0;
+  this.overAllScore = 0;
+  this.turnScore = 0;
 }
 
 Player.prototype.rollDice = function() {
   let roll = randomMath();
-
   if (roll === 1) {
-    this.currentScore = 0;
+    this.turnScore = 0;
+    game.changePlayer();
   } else {
-    this.currentScore += roll;
+    this.turnScore += roll;
   }
-
+  
+  
 }
 
 Player.prototype.endTurn = function() {
-  this.totalScore += this.currentScore;
-  this.currentScore = 0;
+  this.overAllScore += this.turnScore;
+  this.turnScore = 0;
 }
 
-Player.prototype.newGame = function() {
-  this.totalScore = 0;
-  this.currentScore = 0;
+// UI
+
+let game = new Game();
+let player1 = new Player();
+let player2 = new Player();
+game.players.push(player1, player2);
+
+
+function updateScores() {
+  const p1turnScore = game.players[0].turnScore; 
+  const p2turnScore = game.players[1].turnScore;
+  const p1totalScore = game.players[0].overAllScore;
+  const p2totalScore = game.players[1].overAllScore;
+  document.getElementById("current-1").innerText = p1turnScore;
+  document.getElementById("current-2").innerText = p2turnScore;
+  document.getElementById("score-1").innerText = p1totalScore;
+  document.getElementById("score-2").innerText = p2totalScore;
+  
 }
+// function displayScores() {
+//   const turnScore = game.players[game.activePlayer].turnScore;
+//   if (game.activePlayer = 0) {
+//     document.getElementById("current-1").innerText = turnScore;
+//   } else if (game.activePlayer = 1) {
+//     document.getElementById("current-2").innerText = turnScore;
+//   }
+// }
+
+//game.players[game.activePlayer].turnScore = a bajillion
 
 
-// 
-//so, do we wanna deal with the turns implicitly?
-
-Player.prototype.changeTurn = function() {
-  set (player object named active turn to false or true)
+function handleRollButton() {
+  const rollButton = document.querySelector(".btn-roll");
+  const holdButton = document.querySelector(".btn-hold");
+  const newGame = document.querySelector(".btn-new");
 }
+window.addEventListener("load", function (){
+  document.querySelector(".btn-new").addEventListener("click", game.newGame())
+  document.querySelector(".btn-roll").addEventListener("click", function () {
+    game.players[game.activePlayer].rollDice();
+    updateScores();
+    game.endGame();
+    if (game.gameActive === false) {
+      alert("You have won!");
+    };
+  });
+  document.querySelector(".btn-hold").addEventListener("click", function() {
+    game.players[game.activePlayer].endTurn();
+    game.changePlayer();
+    updateScores();
+    game.endGame();
+    if (game.gameActive === false) {
+      alert("You have won!");
+    };
+  });
 
-// it's 
-
-//so create a boolean if player 1 holds then player 2 will be true
-
-
+});
